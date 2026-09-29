@@ -1,0 +1,413 @@
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------- Design Tokens ---------- */
+:root {
+  --bg-deep: #010208;
+  --bg-space-mid: #050c1c;
+  --bg-space-horizon: #0c2240;
+  
+
+  --sun-core: #fff7e0;
+  --sun-glow: #ffb347;
+
+  --star: #e8f1ff;
+
+  --iss-body: #dfe8f5;
+  --iss-accent: #4dd9ff;
+
+  --atmosphere: #4dd9ff;
+
+  --panel-bg: rgba(8, 14, 26, 0.85);
+  --panel-border: rgba(90, 180, 255, 0.22);
+
+  --text-primary: #e8f1ff;
+  --text-secondary: #7f9bb8;
+
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --space-height: 60vh;
+  --map-height: 40vh;
+}
+
+/* ---------- Base ---------- */
+html,
+body {
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  overflow: hidden;
+}
+
+/* ---------- Scene wrapper ---------- */
+#scene {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-space-horizon);
+}
+
+/* ---------- Space zone ---------- */
+#space {
+  position: relative;
+  height: var(--space-height);
+  width: 100%;
+  z-index: 2;
+  background:
+    radial-gradient(
+      ellipse 140% 60% at 50% 100%,
+      rgba(20, 60, 110, 0.55) 0%,
+      rgba(10, 30, 60, 0.25) 35%,
+      transparent 70%
+    ),
+    linear-gradient(
+      to bottom,
+      #010208 0%,
+      #03060f 25%,
+      #050c1c 50%,
+      #08172e 78%,
+      #0c2240 100%
+    );
+  overflow: visible;
+}
+#space::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to top,
+      rgba(255, 210, 150, 0.18) 0%,
+      rgba(255, 170, 90, 0.08) 3%,
+      rgba(200, 120, 50, 0.03) 14%,
+      transparent 38%
+    ),
+    radial-gradient(
+      ellipse 120% 90% at 50% 50%,
+      transparent 55%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+  z-index: 2;
+}
+/* ---------- Horizon divider ---------- */
+
+/* ---------- Map zone ---------- */
+#map {
+  position: relative;
+  height: var(--map-height);
+  width: 100%;
+  background: #0a1220;
+  z-index: 1;
+  border-radius: 50% 50% 0 0 / 7vh 7vh 0 0;
+  overflow: hidden;
+box-shadow:
+  0 -2px 18px rgba(150, 220, 255, 0.35),
+  0 -8px 55px rgba(90, 180, 240, 0.14);
+}
+/* ---------- Detail panel ---------- */
+#panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 340px;
+  background: var(--panel-bg);
+  border-left: 1px solid var(--panel-border);
+  backdrop-filter: blur(10px);
+  transform: translateX(100%);
+  transition: transform 0.4s ease;
+  z-index: 100;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+#panel.open {
+  transform: translateX(0);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  :root {
+    --space-height: 50vh;
+    --map-height: 50vh;
+  }
+
+  #panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 55vh;
+    border-left: none;
+    border-top: 1px solid var(--panel-border);
+    transform: translateY(100%);
+  }
+
+  #panel.open {
+    transform: translateY(0);
+  }
+}
+/* ---------- Stars ---------- */
+#stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--star);
+  opacity: 0.8;
+  will-change: opacity, transform;
+  animation: twinkle var(--twinkle-duration, 4s) ease-in-out infinite;
+  animation-delay: var(--twinkle-delay, 0s);
+}
+
+.star.bright {
+  box-shadow: 0 0 4px var(--star), 0 0 8px rgba(232, 241, 255, 0.5);
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: var(--base-opacity, 0.8);
+    transform: scale(1);
+  }
+  50% {
+    opacity: calc(var(--base-opacity, 0.8) * 0.35);
+    transform: scale(0.85);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star {
+    animation: none;
+  }
+}
+/* ---------- Sun ---------- */
+#sun {
+  position: absolute;
+  bottom: -8vmin;
+  left: -22vmin;      /* was -12vmin — sun moved more off-screen */
+  width: 80vmin;
+  height: 80vmin;
+  z-index: 4;
+  pointer-events: none;
+}
+
+#sun::after {
+  content: "";
+  position: absolute;
+  top: 55%;
+  left: 90%;
+  transform: translateY(-50%);
+  width: 110vmin;
+  height: 80vmin;
+  background: radial-gradient(
+    ellipse at 0% 50%,
+    rgba(255, 140, 50, 0.30) 0%,
+    rgba(255, 110, 30, 0.14) 38%,
+    rgba(220, 80, 10, 0.05) 62%,
+    transparent 82%
+  );
+  filter: blur(45px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.sun-halo {
+  position: absolute;
+  inset: -55%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 190, 90, 0.55) 0%,
+    rgba(255, 130, 40, 0.28) 30%,
+    rgba(210, 70, 10, 0.12) 58%,
+    transparent 82%
+  );
+  filter: blur(35px);
+  animation: sunBreathe 10s ease-in-out infinite;
+}
+
+.sun-body {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 78% 55%,
+    #ffffff 0%,
+    #fff6d0 8%,
+    #ffd95e 22%,
+    #ffab1a 38%,
+    #ff7a0a 56%,
+    #d13d05 74%,
+    #8a1f00 90%,
+    rgba(80, 15, 0, 0.7) 100%
+  );
+  box-shadow:
+    0 0 60px rgba(255, 170, 70, 0.85),
+    0 0 140px rgba(255, 110, 30, 0.55),
+    0 0 300px rgba(220, 70, 10, 0.35);
+  filter: blur(0.4px);
+}
+
+.sun-hot {
+  position: absolute;
+  top: 55%;
+  left: 88%;
+  width: 55%;
+  height: 75%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 240, 0.95) 0%,
+    rgba(255, 230, 140, 0.6) 32%,
+    rgba(255, 170, 60, 0.25) 62%,
+    transparent 85%
+  );
+  filter: blur(20px);
+  animation: sunHeat 5s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.sun-rays {
+  position: absolute;
+  inset: -100%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 200, 140, 0) 0deg,
+    rgba(255, 210, 160, 0.07) 1.8deg,
+    rgba(255, 200, 140, 0) 3.6deg
+  );
+  filter: blur(16px);
+  -webkit-mask: radial-gradient(circle, black 18%, transparent 74%);
+  mask: radial-gradient(circle, black 18%, transparent 74%);
+  animation: sunRayRotate 240s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes sunBreathe {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.04); }
+}
+
+@keyframes sunRayRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes sunHeat {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sun-halo,
+  .sun-rays,
+  .sun-hot {
+    animation: none;
+  }
+}
+/* ---------- ISS ---------- */
+#iss {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  width: 26vw;
+  max-width: 420px;
+  min-width: 200px;
+  z-index: 5;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  animation: issFloat 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+#iss svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter:
+    drop-shadow(0 0 8px rgba(77, 217, 255, 0.5))
+    drop-shadow(0 0 22px rgba(77, 217, 255, 0.22));
+  transition: filter 0.3s ease;
+}
+
+/* Soft glow behind the ISS */
+#iss::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(77, 217, 255, 0.18) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: -1;
+  animation: issHalo 5s ease-in-out infinite;
+}
+
+#iss:hover svg {
+  filter:
+    drop-shadow(0 0 14px rgba(77, 217, 255, 0.85))
+    drop-shadow(0 0 36px rgba(77, 217, 255, 0.5));
+}
+
+#iss:focus-visible {
+  outline: 2px solid var(--iss-accent);
+  outline-offset: 10px;
+  border-radius: 10px;
+}
+
+@keyframes issFloat {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0) rotate(-0.8deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-8px) rotate(0.8deg);
+  }
+}
+
+@keyframes issHalo {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #iss,
+  #iss::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  #iss {
+    width: 55vw;
+    min-width: 160px;
+  }
+}

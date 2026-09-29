@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ISS Tracker</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS (loaded here, used in Phase 2.7) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Our styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="scene">
+    <div id="space">
+        <div id="stars"></div>
+        <div id="sun">
+            <div class="sun-rays"></div>
+            <div class="sun-halo"></div>
+            <div class="sun-body"></div>
+            <dic class="sun-hot"></dic>
+        </div>
+        <div id="iss" role="button" tabindex="0" aria-label="International Space Station — click for live telemetry">
+  <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <!-- Solar panel gradient - deep space blue -->
+      <linearGradient id="solarGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#4a6a9a" />
+        <stop offset="45%" stop-color="#1e3a6a" />
+        <stop offset="100%" stop-color="#0a1a3a" />
+      </linearGradient>
+      <!-- Solar cell pattern - fine grid -->
+      <pattern id="solarCells" patternUnits="userSpaceOnUse" width="7" height="7">
+        <rect width="7" height="7" fill="url(#solarGrad)" />
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#0a1a3a" stroke-width="0.5" opacity="0.8" />
+        <line x1="0" y1="0" x2="7" y2="0" stroke="#0a1a3a" stroke-width="0.5" opacity="0.8" />
+        <line x1="3.5" y1="0" x2="3.5" y2="7" stroke="#0a1a3a" stroke-width="0.25" opacity="0.4" />
+      </pattern>
+      <!-- Module body gradient -->
+      <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f2f6ff" />
+        <stop offset="40%" stop-color="#d0dae8" />
+        <stop offset="100%" stop-color="#8a9cb8" />
+      </linearGradient>
+      <!-- Truss gradient -->
+      <linearGradient id="trussGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#d8e0ec" />
+        <stop offset="100%" stop-color="#6a7a94" />
+      </linearGradient>
+      <!-- Radiator gradient -->
+      <linearGradient id="radGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8eef6" />
+        <stop offset="100%" stop-color="#b0bdd0" />
+      </linearGradient>
+    </defs>
+
+    <!-- ==================== LEFT SOLAR ARRAY WINGS ==================== -->
+    <!-- Far left - Upper wing -->
+    <rect x="10" y="30" width="140" height="55" rx="1.5" fill="url(#solarCells)" stroke="#1a2a4a" stroke-width="1" />
+    <line x1="80" y1="30" x2="80" y2="85" stroke="#1a2a4a" stroke-width="0.8" opacity="0.6" />
+    <!-- Far left - Lower wing -->
+    <rect x="10" y="135" width="140" height="55" rx="1.5" fill="url(#solarCells)" stroke="#1a2a4a" stroke-width="1" />
+    <line x1="80" y1="135" x2="80" y2="190" stroke="#1a2a4a" stroke-width="0.8" opacity="0.6" />
+    <!-- Left wing connector masts -->
+    <line x1="150" y1="57.5" x2="180" y2="57.5" stroke="#8a9cb8" stroke-width="2.5" />
+    <line x1="150" y1="162.5" x2="180" y2="162.5" stroke="#8a9cb8" stroke-width="2.5" />
+    <!-- Left mast vertical struts -->
+    <line x1="165" y1="57.5" x2="165" y2="85" stroke="#8a9cb8" stroke-width="1.5" />
+    <line x1="165" y1="135" x2="165" y2="162.5" stroke="#8a9cb8" stroke-width="1.5" />
+
+    <!-- ==================== RIGHT SOLAR ARRAY WINGS ==================== -->
+    <!-- Far right - Upper wing -->
+    <rect x="570" y="30" width="140" height="55" rx="1.5" fill="url(#solarCells)" stroke="#1a2a4a" stroke-width="1" />
+    <line x1="640" y1="30" x2="640" y2="85" stroke="#1a2a4a" stroke-width="0.8" opacity="0.6" />
+    <!-- Far right - Lower wing -->
+    <rect x="570" y="135" width="140" height="55" rx="1.5" fill="url(#solarCells)" stroke="#1a2a4a" stroke-width="1" />
+    <line x1="640" y1="135" x2="640" y2="190" stroke="#1a2a4a" stroke-width="0.8" opacity="0.6" />
+    <!-- Right wing connector masts -->
+    <line x1="570" y1="57.5" x2="540" y2="57.5" stroke="#8a9cb8" stroke-width="2.5" />
+    <line x1="570" y1="162.5" x2="540" y2="162.5" stroke="#8a9cb8" stroke-width="2.5" />
+    <!-- Right mast vertical struts -->
+    <line x1="555" y1="57.5" x2="555" y2="85" stroke="#8a9cb8" stroke-width="1.5" />
+    <line x1="555" y1="135" x2="555" y2="162.5" stroke="#8a9cb8" stroke-width="1.5" />
+
+    <!-- ==================== INTEGRATED TRUSS STRUCTURE ==================== -->
+    <!-- Main horizontal truss - backbone -->
+    <rect x="180" y="102" width="360" height="14" rx="2" fill="url(#trussGrad)" stroke="#4a5a74" stroke-width="0.8" />
+    <!-- Truss segment divisions -->
+    <line x1="240" y1="102" x2="240" y2="116" stroke="#4a5a74" stroke-width="0.6" opacity="0.5" />
+    <line x1="300" y1="102" x2="300" y2="116" stroke="#4a5a74" stroke-width="0.6" opacity="0.5" />
+    <line x1="360" y1="102" x2="360" y2="116" stroke="#4a5a74" stroke-width="0.6" opacity="0.5" />
+    <line x1="420" y1="102" x2="420" y2="116" stroke="#4a5a74" stroke-width="0.6" opacity="0.5" />
+    <line x1="480" y1="102" x2="480" y2="116" stroke="#4a5a74" stroke-width="0.6" opacity="0.5" />
+
+    <!-- ==================== RADIATORS ==================== -->
+    <!-- Left radiator - attached to truss, angled down -->
+    <rect x="195" y="116" width="22" height="38" rx="1" fill="url(#radGrad)" stroke="#7a8aa4" stroke-width="0.7" />
+    <line x1="206" y1="116" x2="206" y2="154" stroke="#7a8aa4" stroke-width="0.4" opacity="0.6" />
+    <!-- Right radiator - attached to truss, angled down -->
+    <rect x="503" y="116" width="22" height="38" rx="1" fill="url(#radGrad)" stroke="#7a8aa4" stroke-width="0.7" />
+    <line x1="514" y1="116" x2="514" y2="154" stroke="#7a8aa4" stroke-width="0.4" opacity="0.6" />
+
+    <!-- ==================== PRESSURIZED MODULES ==================== -->
+    <!-- Main cylindrical module cluster -->
+    <rect x="290" y="68" width="140" height="68" rx="10" fill="url(#bodyGrad)" stroke="#5a6a84" stroke-width="1" />
+    <!-- Module seams -->
+    <line x1="320" y1="68" x2="320" y2="136" stroke="#5a6a84" stroke-width="0.6" opacity="0.4" />
+    <line x1="370" y1="68" x2="370" y2="136" stroke="#5a6a84" stroke-width="0.6" opacity="0.4" />
+    <line x1="400" y1="68" x2="400" y2="136" stroke="#5a6a84" stroke-width="0.6" opacity="0.4" />
+    
+    <!-- Forward module (smaller cylinder) -->
+    <rect x="260" y="82" width="45" height="40" rx="8" fill="url(#bodyGrad)" stroke="#5a6a84" stroke-width="0.9" />
+    <!-- Aft module (smaller cylinder) -->
+    <rect x="415" y="82" width="45" height="40" rx="8" fill="url(#bodyGrad)" stroke="#5a6a84" stroke-width="0.9" />
+
+    <!-- Top zenith module -->
+    <rect x="335" y="48" width="50" height="24" rx="6" fill="url(#bodyGrad)" stroke="#5a6a84" stroke-width="0.8" />
+
+    <!-- ==================== DETAILS ==================== -->
+    <!-- Docking ports (small circles on module ends) -->
+    <circle cx="260" cy="102" r="4" fill="#a0b0c8" stroke="#5a6a84" stroke-width="0.6" />
+    <circle cx="460" cy="102" r="4" fill="#a0b0c8" stroke="#5a6a84" stroke-width="0.6" />
+
+    <!-- Antennas -->
+    <line x1="300" y1="68" x2="295" y2="52" stroke="#8a9cb8" stroke-width="1" />
+    <line x1="420" y1="68" x2="425" y2="52" stroke="#8a9cb8" stroke-width="1" />
+    <circle cx="295" cy="52" r="1.5" fill="#4dd9ff" opacity="0.8" />
+    <circle cx="425" cy="52" r="1.5" fill="#4dd9ff" opacity="0.8" />
+
+    <!-- Robotic arm (simplified, on the module) -->
+    <path d="M 380 136 L 380 152 L 395 158" stroke="#c0ccdc" stroke-width="1.5" fill="none" stroke-linecap="round" />
+    <circle cx="395" cy="158" r="2" fill="#c0ccdc" />
+
+    <!-- Status lights -->
+    <circle cx="310" cy="102" r="2.5" fill="#4dd9ff" opacity="0.9" />
+    <circle cx="410" cy="102" r="2.5" fill="#4dd9ff" opacity="0.9" />
+    <circle cx="360" cy="90" r="1.8" fill="#4dd9ff" opacity="0.7" />
+  </svg>
+</div>
+
+
+    <div id="map">
+      <!-- Leaflet map will be injected here -->
+    </div>
+
+    <aside id="panel">
+      <!-- ISS detail panel will go here -->
+    </aside>
+  </div>
+
+  <!-- Leaflet JS (loaded here, used in Phase 2.7) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Our script -->
+  <script src="script.js"></script>
+</body>
+</html>
