@@ -33,8 +33,8 @@
   --font-display: 'Orbitron', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --space-height: 60vh;
-  --map-height: 40vh;
+  --space-height: 50vh;
+  --map-height: 50vh;
 }
 
 /* ---------- Base ---------- */
@@ -199,114 +199,123 @@ box-shadow:
   }
 }
 /* ---------- Sun ---------- */
+/* ---------- Sun ---------- */
 #sun {
   position: absolute;
-  bottom: -8vmin;
-  left: -22vmin;      /* was -12vmin — sun moved more off-screen */
-  width: 80vmin;
-  height: 80vmin;
+  top: -16vmin;       /* anchored to top, pushed up into corner */
+  left: -18vmin;      /* tucked diagonally into top-left corner */
+  width: 52vmin;
+  height: 52vmin;
   z-index: 4;
   pointer-events: none;
+  opacity: 0.94;
 }
-
+/* Atmospheric scatter — light reaching into space */
 #sun::after {
   content: "";
   position: absolute;
-  top: 55%;
-  left: 90%;
+  top: 50%;
+  left: 80%;
   transform: translateY(-50%);
-  width: 110vmin;
-  height: 80vmin;
+  width: 90vmin;
+  height: 70vmin;
   background: radial-gradient(
     ellipse at 0% 50%,
-    rgba(255, 140, 50, 0.30) 0%,
-    rgba(255, 110, 30, 0.14) 38%,
-    rgba(220, 80, 10, 0.05) 62%,
-    transparent 82%
+    rgba(255, 150, 70, 0.22) 0%,
+    rgba(255, 120, 40, 0.10) 35%,
+    rgba(200, 80, 20, 0.04) 60%,
+    transparent 85%
   );
-  filter: blur(45px);
+  filter: blur(50px);
   pointer-events: none;
   z-index: -1;
 }
 
+/* Halo — softer, wider, less intense = distance */
 .sun-halo {
   position: absolute;
-  inset: -55%;
+  inset: -70%;
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgba(255, 190, 90, 0.55) 0%,
-    rgba(255, 130, 40, 0.28) 30%,
-    rgba(210, 70, 10, 0.12) 58%,
-    transparent 82%
+    rgba(255, 200, 110, 0.42) 0%,
+    rgba(255, 140, 50, 0.20) 30%,
+    rgba(200, 80, 20, 0.08) 58%,
+    transparent 85%
   );
-  filter: blur(35px);
-  animation: sunBreathe 10s ease-in-out infinite;
+  filter: blur(48px);
+  animation: sunBreathe 12s ease-in-out infinite;
 }
 
+/* Body — 3D shading: light from the inner edge, dark on the outer side */
 .sun-body {
   position: absolute;
   inset: 0;
   border-radius: 50%;
   background: radial-gradient(
-    circle at 78% 55%,
-    #ffffff 0%,
-    #fff6d0 8%,
-    #ffd95e 22%,
-    #ffab1a 38%,
-    #ff7a0a 56%,
-    #d13d05 74%,
-    #8a1f00 90%,
-    rgba(80, 15, 0, 0.7) 100%
+    circle at 82% 48%,
+    #fffbf0 0%,
+    #ffeeb0 10%,
+    #ffd060 24%,
+    #ffa020 42%,
+    #f07815 60%,
+    #c04505 78%,
+    #7a1e00 92%,
+    rgba(60, 10, 0, 0.85) 100%
   );
   box-shadow:
-    0 0 60px rgba(255, 170, 70, 0.85),
-    0 0 140px rgba(255, 110, 30, 0.55),
-    0 0 300px rgba(220, 70, 10, 0.35);
-  filter: blur(0.4px);
+    /* Inner rim: bright, tight */
+    0 0 22px rgba(255, 200, 120, 0.55),
+    /* Mid glow: warm */
+    0 0 80px rgba(255, 140, 50, 0.35),
+    /* Far glow: dim, wide — sells depth */
+    0 0 220px rgba(230, 90, 20, 0.18);
+  filter: blur(0.8px);   /* tiny blur = distant */
 }
 
+/* Hot spot — 3D highlight on the inner (right) edge */
 .sun-hot {
   position: absolute;
-  top: 55%;
-  left: 88%;
-  width: 55%;
-  height: 75%;
+  top: 52%;
+  left: 86%;
+  width: 42%;
+  height: 62%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgba(255, 255, 240, 0.95) 0%,
-    rgba(255, 230, 140, 0.6) 32%,
-    rgba(255, 170, 60, 0.25) 62%,
-    transparent 85%
+    rgba(255, 255, 245, 0.9) 0%,
+    rgba(255, 230, 150, 0.5) 32%,
+    rgba(255, 170, 60, 0.2) 62%,
+    transparent 88%
   );
-  filter: blur(20px);
-  animation: sunHeat 5s ease-in-out infinite;
+  filter: blur(26px);
+  animation: sunHeat 6.5s ease-in-out infinite;
   pointer-events: none;
   mix-blend-mode: screen;
 }
 
+/* Rays — subtler, more distant feel */
 .sun-rays {
   position: absolute;
-  inset: -100%;
+  inset: -110%;
   border-radius: 50%;
   background: repeating-conic-gradient(
     from 0deg,
-    rgba(255, 200, 140, 0) 0deg,
-    rgba(255, 210, 160, 0.07) 1.8deg,
-    rgba(255, 200, 140, 0) 3.6deg
+    rgba(255, 210, 150, 0) 0deg,
+    rgba(255, 220, 170, 0.05) 1.8deg,
+    rgba(255, 210, 150, 0) 3.6deg
   );
-  filter: blur(16px);
-  -webkit-mask: radial-gradient(circle, black 18%, transparent 74%);
-  mask: radial-gradient(circle, black 18%, transparent 74%);
-  animation: sunRayRotate 240s linear infinite;
-  opacity: 0.6;
+  filter: blur(20px);
+  -webkit-mask: radial-gradient(circle, black 15%, transparent 72%);
+  mask: radial-gradient(circle, black 15%, transparent 72%);
+  animation: sunRayRotate 260s linear infinite;
+  opacity: 0.45;
 }
 
 @keyframes sunBreathe {
-  0%, 100% { opacity: 0.85; transform: scale(1); }
-  50%      { opacity: 1;    transform: scale(1.04); }
+  0%, 100% { opacity: 0.82; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.03); }
 }
 
 @keyframes sunRayRotate {
@@ -317,11 +326,11 @@ box-shadow:
 @keyframes sunHeat {
   0%, 100% {
     transform: translate(-50%, -50%) scale(1);
-    opacity: 0.85;
+    opacity: 0.75;
   }
   50% {
-    transform: translate(-50%, -50%) scale(1.1);
-    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+    opacity: 0.95;
   }
 }
 
@@ -336,7 +345,7 @@ box-shadow:
 #iss {
   position: absolute;
   top: 42%;
-  left: 50%;
+  left: 62%;
   width: 26vw;
   max-width: 420px;
   min-width: 200px;
@@ -404,7 +413,25 @@ box-shadow:
     animation: none;
   }
 }
+/* ---------- Leaflet container overrides ---------- */
+#map .leaflet-container {
+  background: #0a1220;
+  font-family: var(--font-mono);
+}
 
+#map .leaflet-control-attribution {
+  background: rgba(5, 10, 20, 0.6);
+  color: var(--text-secondary);
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px 0 0 0;
+  backdrop-filter: blur(4px);
+}
+
+#map .leaflet-control-attribution a {
+  color: var(--iss-accent);
+  text-decoration: none;
+}
 @media (max-width: 600px) {
   #iss {
     width: 55vw;

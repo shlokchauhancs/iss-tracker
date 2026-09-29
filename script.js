@@ -49,3 +49,41 @@ function generateStars() {
 }
 
 generateStars();
+
+/* ---------- Leaflet Map ---------- */
+function initMap() {
+  const mapEl = document.getElementById("map");
+  if (!mapEl) {
+    console.warn("Map container not found");
+    return;
+  }
+
+  const map = L.map("map", {
+    center: [20, 0],          // test center — Phase 3 will setView to live ISS coords
+    zoom: 3,
+    minZoom: 2,
+    maxZoom: 6,
+    zoomControl: false,
+    attributionControl: true,
+    scrollWheelZoom: false,
+    worldCopyJump: true,
+    fadeAnimation: true,
+  });
+
+  L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 19,
+      attribution:
+        "Tiles © Esri — Source: Esri, USDA, USGS, and the GIS User Community",
+    }
+  ).addTo(map);
+
+  window.issMap = map;
+
+  setTimeout(() => map.invalidateSize(), 150);
+
+  console.log("Phase 2.7 — satellite map initialized");
+}
+
+initMap();
