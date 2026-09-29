@@ -79,6 +79,24 @@ function initMap() {
     }
   ).addTo(map);
 
+    // Test marker — Phase 3 will replace with live coordinates
+  const testCoord = [20, 0]; // lat, lon
+
+  const issIcon = L.divIcon({
+    className: "iss-map-marker",
+    html: '<div class="iss-map-dot"></div>',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+
+  const issDot = L.marker(testCoord, {
+    icon: issIcon,
+    keyboard: false,
+  }).addTo(map);
+
+  // Expose so Phase 3 can update its position
+  window.issDot = issDot;
+
   window.issMap = map;
 
   setTimeout(() => map.invalidateSize(), 150);

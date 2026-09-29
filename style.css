@@ -438,3 +438,35 @@ box-shadow:
     min-width: 160px;
   }
 }
+/* ---------- ISS map marker ---------- */
+.iss-map-marker {
+  background: transparent;
+  border: none;
+}
+
+.iss-map-dot {
+  width: 14px;
+  height: 14px;
+  background: #4dd9ff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 6px rgba(77, 217, 255, 0.9),
+    0 0 14px rgba(77, 217, 255, 0.6),
+    0 0 24px rgba(77, 217, 255, 0.3);
+  animation: mapDotPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes mapDotPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iss-map-dot { animation: none; }
+}
