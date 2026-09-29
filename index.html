@@ -8,7 +8,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Leaflet CSS (loaded here, used in Phase 2.7) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -150,10 +150,42 @@
       <!-- Leaflet map will be injected here -->
     </div>
 
-    <aside id="panel">
+  
       <!-- ISS detail panel will go here -->
-    </aside>
+     <aside id="panel" aria-hidden="true">
+  <button id="panel-close" aria-label="Close telemetry panel">×</button>
+  <h2 class="panel-title">ISS — International Space Station</h2>
+  <p class="panel-status"><span class="status-pulse"></span> LIVE</p>
+  <div class="panel-grid">
+    <div class="panel-item">
+      <span class="panel-label">Latitude</span>
+      <span class="panel-value" id="stat-lat">—</span>
+    </div>
+    <div class="panel-item">
+      <span class="panel-label">Longitude</span>
+      <span class="panel-value" id="stat-lon">—</span>
+    </div>
+    <div class="panel-item">
+      <span class="panel-label">Speed</span>
+      <span class="panel-value" id="stat-speed">—</span>
+    </div>
+    <div class="panel-item">
+      <span class="panel-label">Altitude</span>
+      <span class="panel-value" id="stat-alt">—</span>
+    </div>
+    <div class="panel-item">
+      <span class="panel-label">Orbital period</span>
+      <span class="panel-value" id="stat-period">—</span>
+    </div>
+    <div class="panel-item">
+      <span class="panel-label">Last update</span>
+      <span class="panel-value" id="stat-updated">—</span>
+    </div>
   </div>
+</aside>
+
+    
+
 
   <!-- Leaflet JS (loaded here, used in Phase 2.7) -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

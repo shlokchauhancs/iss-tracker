@@ -105,3 +105,44 @@ function initMap() {
 }
 
 initMap();
+/* ---------- Panel toggle ---------- */
+function setupPanel() {
+  const iss = document.getElementById("iss");
+  const panel = document.getElementById("panel");
+  const closeBtn = document.getElementById("panel-close");
+
+  if (!iss || !panel) return;
+
+  function openPanel() {
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+  }
+
+  function closePanel() {
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+  }
+
+  // Click ISS to open
+  iss.addEventListener("click", openPanel);
+
+  // Keyboard: Enter or Space on the ISS button
+  iss.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openPanel();
+    }
+  });
+
+  // Click the × to close
+  closeBtn.addEventListener("click", closePanel);
+
+  // Esc key closes
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closePanel();
+  });
+
+  console.log("Phase 2.9 — panel toggle wired");
+}
+
+setupPanel();
