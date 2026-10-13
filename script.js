@@ -26,7 +26,7 @@ function generateStars() {
     const baseOpacity = Math.random() * 0.6 + 0.3;
 
     // Random twinkle timing so stars don't sync
-    const duration = (Math.random() * 3 + 2.5).toFixed(2) + "s";
+        const duration = (Math.random() * 6 + 3).toFixed(2) + "s";
     const delay = (Math.random() * 4).toFixed(2) + "s";
 
     star.style.width = size + "px";
@@ -144,7 +144,7 @@ function setupPanel() {
 
   console.log("Phase 2.9 — panel toggle wired");
 }
-let lastOrbit = null;
+
 setupPanel();
 /* ---------- Panel population ---------- */
 function setStat(id, value) {
@@ -216,8 +216,6 @@ async function fetchISS() {
 }
 /* ---------- Longitude → horizontal position ---------- */
 function lonToXPercent(lon) {
-  // Map -180°..+180° → 20%..80% of the space zone width
-  // Keeps the ISS comfortably inside the viewport
   const minX = 20;
   const maxX = 80;
   return minX + ((lon + 180) / 360) * (maxX - minX);
@@ -230,21 +228,32 @@ function updateISSPosition(lon) {
   const prevLon = iss.dataset.lon ? parseFloat(iss.dataset.lon) : null;
   const xPercent = lonToXPercent(lon);
 
-  // Detect antimeridian wrap: lon jumps from ~+180 to ~-180
-  const wrapped = prevLon !== null && Math.abs(lon - prevLon) > 180;
-
-  if (wrapped) {
-    // Snap without transition to avoid a long slide across the screen
+  if (prevLon === null) {
     iss.style.transition = "none";
     iss.style.left = xPercent + "%";
-    void iss.offsetWidth;              // force reflow
-    iss.style.transition = "";         // restore transition
+    void iss.offsetWidth;
+    iss.style.transition = "";
+    iss.dataset.lon = lon;
+    return;
+  }
+
+  let delta = lon - prevLon;
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+
+  // Guard against bad data (ISS can't move >2° in 5s)
+  if (Math.abs(delta) > 2) {
+    iss.style.transition = "none";
+    iss.style.left = xPercent + "%";
+    void iss.offsetWidth;
+    iss.style.transition = "";
   } else {
     iss.style.left = xPercent + "%";
   }
 
   iss.dataset.lon = lon;
 }
+
 /* ---------- State management ---------- */
 const STATE = {
   LOADING: "loading",
@@ -254,14 +263,13 @@ const STATE = {
 };
 
 let consecutiveFailures = 0;
-const FAILURE_THRESHOLD = 3;   // after 3 fails → error state
+const FAILURE_THRESHOLD = 3;
 
 function setPanelState(state, message) {
   const panel = document.getElementById("panel");
   if (!panel) return;
   panel.dataset.state = state;
 
-  // Update status text
   const status = panel.querySelector(".panel-status");
   if (status) {
     const dot = status.querySelector(".status-pulse");
@@ -275,30 +283,24 @@ function setPanelState(state, message) {
     ));
   }
 
-  // Update error message text
   if (message) {
     const msg = document.getElementById("error-message");
     if (msg) msg.textContent = message;
   }
 }
+
 /* ---------- Orbital physics ---------- */
 const PHYSICS = {
-  GM_EARTH: 3.986e14,     // m³/s²
-  R_EARTH: 6_371_000,     // m
-  NOMINAL_ALTITUDE: 408_000, // m
+  GM_EARTH: 3.986e14,
+  R_EARTH: 6_371_000,
+  NOMINAL_ALTITUDE: 408_000,
 };
 
 function computeOrbit(altitudeKm) {
   const altitudeM = (altitudeKm || 408) * 1000;
   const r = PHYSICS.R_EARTH + altitudeM;
-
-  // Orbital velocity (m/s → km/s)
   const v = Math.sqrt(PHYSICS.GM_EARTH / r) / 1000;
-
-  // Orbital period (seconds → minutes)
   const T = 2 * Math.PI * Math.sqrt(Math.pow(r, 3) / PHYSICS.GM_EARTH) / 60;
-
-  // Distance covered per 5-second tick
   const distancePerTick = v * 5;
 
   return {
@@ -314,6 +316,7 @@ function computeOrbit(altitudeKm) {
 const UPDATE_INTERVAL_MS = 5000;
 let updateCount = 0;
 let lastData = null;
+let lastOrbit = null;
 
 async function tick() {
   // Offline: count as a failure so we escalate to ERROR after the threshold
@@ -340,7 +343,7 @@ async function tick() {
     return;
   }
 
-  // Success — reset everything
+  // Success
   consecutiveFailures = 0;
   setPanelState(STATE.LIVE);
   lastData = data;
@@ -352,10 +355,29 @@ async function tick() {
   }
 
   if (window.issMap) {
-    window.issMap.setView([data.lat, data.lon], window.issMap.getZoom(), {
-      animate: true,
-      duration: 4.5,
-    });
+    const zoom = window.issMap.getZoom();
+    const last = window.__lastMapPos;
+
+    // Detect antimeridian wrap: longitude jump > 180°
+    const wrapped = last && Math.abs(data.lon - last.lon) > 180;
+
+    // Detect a suspiciously large jump (>5° in 5s is impossible for ISS)
+    const bigJump = last && (
+      Math.abs(data.lat - last.lat) > 5 ||
+      Math.abs(data.lon - last.lon) > 5
+    );
+
+    if (wrapped || bigJump || !last) {
+      // Snap instantly — no animated fly-across
+      window.issMap.setView([data.lat, data.lon], zoom, { animate: false });
+    } else {
+      window.issMap.setView([data.lat, data.lon], zoom, {
+        animate: true,
+        duration: 4.5,
+      });
+    }
+
+    window.__lastMapPos = { lat: data.lat, lon: data.lon };
   }
 
   updateISSPosition(data.lon);
@@ -371,15 +393,17 @@ async function tick() {
   setStat("stat-updated", formatAgo(data.timestamp));
 }
 
-// First fetch immediately, then every 5 seconds
+/* ---------- Kick off the loop ---------- */
 tick();
 setInterval(tick, UPDATE_INTERVAL_MS);
+
 /* ---------- Live "updated" ticker ---------- */
 setInterval(() => {
   if (lastData) {
     setStat("stat-updated", formatAgo(lastData.timestamp));
   }
 }, 1000);
+
 /* ---------- Offline / online handling ---------- */
 function updateOfflineNotice() {
   const notice = document.getElementById("offline-notice");
@@ -394,7 +418,7 @@ function updateOfflineNotice() {
 
 window.addEventListener("online", () => {
   updateOfflineNotice();
-  tick(); // fetch immediately when back online
+  tick();
 });
 window.addEventListener("offline", updateOfflineNotice);
 updateOfflineNotice();
@@ -416,16 +440,15 @@ document.addEventListener("visibilitychange", () => {
 
 /* ---------- Initial state ---------- */
 setPanelState(STATE.LOADING, "Acquiring signal…");
+
 /* ---------- Scene fade-in ---------- */
-// Script is at the end of <body>, so DOM is already parsed.
-// Use requestAnimationFrame so the first paint happens while hidden,
-// then reveal on the next frame.
 requestAnimationFrame(() => {
   requestAnimationFrame(() => {
     document.getElementById("scene")?.classList.add("ready");
   });
 });
-/* ---------- Safety: force scene visible if something hangs ---------- */
+
+/* ---------- Safety fallback ---------- */
 setTimeout(() => {
   document.getElementById("scene")?.classList.add("ready");
 }, 1500);

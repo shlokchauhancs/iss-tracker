@@ -168,7 +168,9 @@ box-shadow:
   opacity: 0;
   transform: translateY(-8px) scale(0.94);
   pointer-events: none;
-  transition: opacity 0.28s ease, transform 0.28s ease;
+    transition:
+    opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 100;
 }
 
@@ -259,12 +261,12 @@ box-shadow:
   border-radius: 50%;
   background: #ffc456;
   box-shadow: 0 0 8px #ffc456;
-  animation: statusPulse 1.8s ease-in-out infinite;
+  animation: statusPulse 2.2s ease-in-out infinite;
 }
 
 @keyframes statusPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.4; transform: scale(0.8); }
+  50%      { opacity: 0.55; transform: scale(0.88); }
 }
 
 .panel-grid {
@@ -439,7 +441,7 @@ box-shadow:
     transparent 85%
   );
   filter: blur(48px);
-  animation: sunBreathe 12s ease-in-out infinite;
+  animation: sunBreathe 16s ease-in-out infinite;
 }
 
 /* Body — 3D shading: light from the inner edge, dark on the outer side */
@@ -509,8 +511,8 @@ box-shadow:
 }
 
 @keyframes sunBreathe {
-  0%, 100% { opacity: 0.82; transform: scale(1); }
-  50%      { opacity: 1;    transform: scale(1.03); }
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.015); }
 }
 
 @keyframes sunRayRotate {
@@ -547,7 +549,7 @@ box-shadow:
   z-index: 5;
   cursor: pointer;
   transform: translate(-50%, -50%);
-  animation: issFloat 7s ease-in-out infinite;
+  animation: issFloat 9s ease-in-out infinite;
   will-change: transform, left;
   transition: left 4.5s ease-in-out;  /*Smooth Horizontal Slide*/
 }
@@ -590,11 +592,17 @@ box-shadow:
 }
 
 @keyframes issFloat {
-  0%, 100% {
-    transform: translate(-50%, -50%) translateY(0) rotate(-0.8deg);
+  0% {
+    transform: translate(-50%, -50%) translateY(0) rotate(-0.6deg);
   }
-  50% {
-    transform: translate(-50%, -50%) translateY(-8px) rotate(0.8deg);
+  35% {
+    transform: translate(-50%, -50%) translateY(-10px) rotate(0.7deg);
+  }
+  70% {
+    transform: translate(-50%, -50%) translateY(-3px) rotate(0.2deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(0) rotate(-0.6deg);
   }
 }
 
