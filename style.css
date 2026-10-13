@@ -136,14 +136,16 @@ box-shadow:
     radial-gradient(1.4px 1.4px at 88% 22%, rgba(255, 240, 200, 0.7), transparent 60%),
     radial-gradient(1px 1px at 44% 12%, rgba(255, 240, 200, 0.6), transparent 60%),
     radial-gradient(1px 1px at 72% 86%, rgba(255, 240, 200, 0.6), transparent 60%),
-    /* Oceanic blue + grassy green blend */
+    /* Oceanic blue + grassy green (semi-transparent so map shows through) */
     linear-gradient(
       145deg,
-      rgba(6, 46, 88, 0.96) 0%,
-      rgba(8, 66, 96, 0.95) 30%,
-      rgba(12, 92, 82, 0.94) 60%,
-      rgba(20, 110, 68, 0.94) 100%
-    );
+      rgba(6, 46, 88, 0.78) 0%,
+      rgba(8, 66, 96, 0.74) 30%,
+      rgba(12, 92, 82, 0.72) 60%,
+      rgba(20, 110, 68, 0.72) 100%
+    ),
+    /* World map — bottom layer */
+    url("assets/World_map_-_low_resolution.svg") center / cover no-repeat;
 
   border: 1px solid rgba(120, 220, 190, 0.4);
   border-radius: 10px;
@@ -358,7 +360,6 @@ box-shadow:
     animation: none;
   }
 }
-/* ---------- Sun ---------- */
 /* ---------- Sun ---------- */
 #sun {
   position: absolute;
