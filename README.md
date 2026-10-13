@@ -1,31 +1,19 @@
-# ISS Tracker
+**Status:** Phase 3 complete — live ISS data, real-time map tracking, orbital physics, and full state handling all working. Ready for final polish and deployment.
 
-A cinematic live tracker for the International Space Station — real-time telemetry on a satellite view of Earth.
+**Live demo:** (coming after deployment)
 
-**Status:** Phase 2 complete — scene, satellite map, and telemetry panel built. Live data wiring begins in Phase 3.
-
-**Live demo:** (coming after Phase 3)
+**Features:**
+- Cinematic space scene with distant sun, starfield, and Earth's horizon
+- Realistic ISS SVG that slides across the sky by real longitude
+- Satellite map (Esri World Imagery) that recenters on the ISS every 5 seconds
+- Live ISS coordinates from Open Notify (with WhereTheISS.at fallback)
+- Real orbital physics: velocity and period computed via the vis-viva equation
+- Pulsing map marker, clickable telemetry panel
+- Loading, live, stale, error, and offline states handled gracefully
+- Mobile-responsive layout
 
 **Tech stack:**
 - HTML, CSS, JavaScript (vanilla)
-- Leaflet.js + Esri World Imagery satellite tiles
-- Open Notify / WhereTheISS.at APIs (Phase 3)
+- Leaflet.js + Esri World Imagery
+- Open Notify + WhereTheISS.at APIs
 - Google Fonts: Space Grotesk + IBM Plex Mono
-
-**Features so far:**
-- Cinematic space scene with distant sun, starfield, and Earth's horizon curve
-- Realistic ISS SVG floating in the sky, clickable
-- Full-color satellite map centered on a test coordinate
-- Pulsing cyan marker on the map
-- Compact telemetry panel opens on ISS click, styled with the space palette
-
-**Known limitations:**
-- Marker is at a static test coordinate; live coordinates arrive in Phase 3
-- Tab throttling in background tabs will slow the update loop once Phase 3 begins — expected browser behavior
-
-**What's next:**
-- Phase 3: live fetch loop, real ISS coordinates, sliding marker
-- Phase 4: physics calculations (speed, altitude, orbital period) displayed live
-- Phase 5: final styling polish, favicon, README screenshots
-- Phase 6: cross-device testing
-- Phase 7: GitHub Pages deployment
