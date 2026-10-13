@@ -125,9 +125,7 @@ box-shadow:
   width: 260px;
   padding: 14px 16px 12px;
 
-  /* Oceanic blue × grassy green, with stars */
   background:
-    /* Stars */
     radial-gradient(1.2px 1.2px at 14% 20%, rgba(255, 240, 200, 0.9), transparent 60%),
     radial-gradient(1px 1px at 62% 30%, rgba(255, 240, 200, 0.65), transparent 60%),
     radial-gradient(1.3px 1.3px at 82% 66%, rgba(255, 240, 200, 0.8), transparent 60%),
@@ -136,15 +134,13 @@ box-shadow:
     radial-gradient(1.4px 1.4px at 88% 22%, rgba(255, 240, 200, 0.7), transparent 60%),
     radial-gradient(1px 1px at 44% 12%, rgba(255, 240, 200, 0.6), transparent 60%),
     radial-gradient(1px 1px at 72% 86%, rgba(255, 240, 200, 0.6), transparent 60%),
-    /* Oceanic blue + grassy green (semi-transparent so map shows through) */
     linear-gradient(
       145deg,
-      rgba(6, 46, 88, 0.78) 0%,
-      rgba(8, 66, 96, 0.74) 30%,
-      rgba(12, 92, 82, 0.72) 60%,
-      rgba(20, 110, 68, 0.72) 100%
+      rgba(6, 46, 88, 0.88) 0%,
+      rgba(8, 66, 96, 0.86) 30%,
+      rgba(12, 92, 82, 0.84) 60%,
+      rgba(20, 110, 68, 0.84) 100%
     ),
-    /* World map — bottom layer */
     url("assets/World_map_-_low_resolution.svg") center / cover no-repeat;
 
   border: 1px solid rgba(120, 220, 190, 0.4);
@@ -156,6 +152,12 @@ box-shadow:
 
   color: #ffd27a;
   font-family: var(--font-mono);
+
+  background-blend-mode:
+    normal, normal, normal, normal,
+    normal, normal, normal, normal,
+    multiply,
+    normal;
 
   opacity: 0;
   transform: translateY(-8px) scale(0.94);
