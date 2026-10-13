@@ -1,9 +1,9 @@
 # ISS Tracker
 
-A cinematic live tracker for the International Space Station — real-time telemetry on a satellite view of Earth.
+A cinematic live tracker for the International Space Station .
 ![ISS Tracker live view](assets/Screenshot.png)
 
-**Status:** Phase 4 complete — full polish pass done. Ready for cross-device testing and public deployment.
+**Status:**  Full Polish . Live And Working .
 
 **Live demo:** https://shlokchauhancs.github.io/iss-tracker/
 
@@ -48,7 +48,3 @@ A cinematic live tracker for the International Space Station — real-time telem
 - Background tabs throttle `setInterval` — expected browser behavior; the tracker refetches on tab return.
 - Sky movement is visually amplified (12×) so the slow real orbital motion is perceptible.
 
-**What's next:**
-- Phase 5: cross-device and cross-browser testing
-- Phase 6: deploy to GitHub Pages
-- Phase 7: final portfolio polish (screenshot, README refinements, pin repo)
