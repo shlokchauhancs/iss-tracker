@@ -328,9 +328,7 @@ box-shadow:
   100% { background-position: -200% 0; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .panel-value.skeleton { animation: none; }
-}
+
 
 /* ---------- Responsive ---------- */
 @media (max-width: 600px) {
@@ -391,11 +389,7 @@ box-shadow:
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .star {
-    animation: none;
-  }
-}
+
 /* ---------- Sun ---------- */
 #sun {
   position: absolute;
@@ -531,13 +525,7 @@ box-shadow:
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sun-halo,
-  .sun-rays,
-  .sun-hot {
-    animation: none;
-  }
-}
+
 /* ---------- ISS ---------- */
 #iss {
   position: absolute;
@@ -611,12 +599,7 @@ box-shadow:
   50%      { opacity: 1;    transform: scale(1.06); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #iss,
-  #iss::after {
-    animation: none;
-  }
-}
+
 /* ---------- Leaflet container overrides ---------- */
 #map .leaflet-container {
   background: #0a1220;
@@ -671,9 +654,7 @@ box-shadow:
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .iss-map-dot { animation: none; }
-}
+
 /* ---------- Panel state variations ---------- */
 #panel[data-state="loading"] .status-pulse {
   background: #7f9bb8;
@@ -757,4 +738,39 @@ box-shadow:
   top: 12px;
   opacity: 1;
   pointer-events: auto;
+}
+/* ---------- Reduced-motion: respect user preference ---------- */
+@media (prefers-reduced-motion: reduce) {
+  /* Stop every looping animation */
+  .star,
+  .sun-halo,
+  .sun-rays,
+  .sun-hot,
+  #iss,
+  #iss::after,
+  .status-pulse,
+  .iss-map-dot,
+  .panel-value.skeleton {
+    animation: none !important;
+  }
+
+  /* Remove smooth transitions — but keep the map pan instant,
+     since setView uses Leaflet's own animation, not CSS */
+  #panel,
+  #iss,
+  #iss svg,
+  .offline-notice {
+    transition: none !important;
+  }
+
+  /* Make sure the ISS still shows at its correct position,
+     just without the floating bob */
+  #iss {
+    transform: translate(-50%, -50%);
+  }
+
+  /* Skeleton shimmer becomes a static dim bar */
+  .panel-value.skeleton {
+    background: rgba(255, 200, 120, 0.12);
+  }
 }
