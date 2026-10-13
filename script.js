@@ -206,6 +206,19 @@ async function tick() {
 
   lastData = data;
   console.log(`Tick #${updateCount} — ${data.lat.toFixed(4)}, ${data.lon.toFixed(4)} (${data.source})`);
+
+  // Move the map marker to the live position
+  if (window.issDot) {
+    window.issDot.setLatLng([data.lat, data.lon]);
+  }
+
+  // Recenter the map on the ISS so it stays visible
+  if (window.issMap) {
+    window.issMap.setView([data.lat, data.lon], window.issMap.getZoom(), {
+      animate: true,
+      duration: 4.5,   // smooth pan over ~4.5 seconds, matching the 5s loop
+    });
+  }
 }
 
 // First fetch immediately, then every 5 seconds
