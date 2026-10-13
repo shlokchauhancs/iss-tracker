@@ -146,3 +146,68 @@ function setupPanel() {
 }
 
 setupPanel();
+/* ---------- ISS data fetching ---------- */
+const API_SOURCES = [
+  {
+    name: "Open Notify",
+    url: "http://api.open-notify.org/iss-now.json",
+    parse: (data) => ({
+      lat: parseFloat(data.iss_position.latitude),
+      lon: parseFloat(data.iss_position.longitude),
+      timestamp: data.timestamp * 1000,
+      altitude: 408,       // nominal km — Open Notify doesn't return altitude
+      velocity: 7.66,      // nominal km/s
+      source: "Open Notify",
+    }),
+  },
+  {
+    name: "WhereTheISS.at",
+    url: "https://api.wheretheiss.at/v1/satellites/25544",
+    parse: (data) => ({
+      lat: data.latitude,
+      lon: data.longitude,
+      timestamp: data.timestamp * 1000,
+      altitude: data.altitude,
+      velocity: data.velocity / 3600, // km/h → km/s
+      source: "WhereTheISS.at",
+    }),
+  },
+];
+
+async function fetchISS() {
+  for (const source of API_SOURCES) {
+    try {
+      const res = await fetch(source.url, { cache: "no-store" });
+      if (!res.ok) {
+        console.warn(`${source.name} returned ${res.status}`);
+        continue;
+      }
+      const raw = await res.json();
+      const parsed = source.parse(raw);
+      console.log(`✓ ${source.name}:`, parsed);
+      return parsed;
+    } catch (err) {
+      console.warn(`${source.name} failed:`, err.message);
+    }
+  }
+  console.error("All ISS data sources failed");
+  return null;
+}
+
+/* ---------- Update loop ---------- */
+const UPDATE_INTERVAL_MS = 5000;
+let updateCount = 0;
+let lastData = null;
+
+async function tick() {
+  updateCount++;
+  const data = await fetchISS();
+  if (!data) return;
+
+  lastData = data;
+  console.log(`Tick #${updateCount} — ${data.lat.toFixed(4)}, ${data.lon.toFixed(4)} (${data.source})`);
+}
+
+// First fetch immediately, then every 5 seconds
+tick();
+setInterval(tick, UPDATE_INTERVAL_MS);
