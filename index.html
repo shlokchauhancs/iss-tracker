@@ -18,6 +18,9 @@
 </head>
 <body>
   <div id="scene">
+      <div id="scene">
+    <div class="offline-notice" id="offline-notice">You're offline — paused</div>
+    <!-- ...existing children... -->
     <div id="space">
         <div id="stars"></div>
         <div id="sun">
@@ -180,6 +183,10 @@
     <div class="panel-item">
       <span class="panel-label">Last update</span>
       <span class="panel-value" id="stat-updated">—</span>
+    </div>
+        <div class="panel-error" id="panel-error">
+      <span id="error-message">Connection lost. Retrying…</span>
+      <button id="retry-btn" type="button">Retry now</button>
     </div>
   </div>
 </aside>

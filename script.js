@@ -146,6 +146,25 @@ function setupPanel() {
 }
 let lastOrbit = null;
 setupPanel();
+/* ---------- Panel population ---------- */
+function setStat(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function formatCoord(value, axis) {
+  const dir = axis === "lat"
+    ? (value >= 0 ? "N" : "S")
+    : (value >= 0 ? "E" : "W");
+  return `${Math.abs(value).toFixed(4)}° ${dir}`;
+}
+
+function formatAgo(timestamp) {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 2) return "just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  return `${Math.floor(seconds / 60)}m ago`;
+}
 /* ---------- ISS data fetching ---------- */
 const API_SOURCES = [
   {
@@ -224,6 +243,42 @@ function updateISSPosition(lon) {
 
   iss.dataset.lon = lon;
 }
+/* ---------- State management ---------- */
+const STATE = {
+  LOADING: "loading",
+  LIVE: "live",
+  STALE: "stale",
+  ERROR: "error",
+};
+
+let consecutiveFailures = 0;
+const FAILURE_THRESHOLD = 3;   // after 3 fails → error state
+
+function setPanelState(state, message) {
+  const panel = document.getElementById("panel");
+  if (!panel) return;
+  panel.dataset.state = state;
+
+  // Update status text
+  const status = panel.querySelector(".panel-status");
+  if (status) {
+    const dot = status.querySelector(".status-pulse");
+    status.textContent = "";
+    if (dot) status.appendChild(dot);
+    status.appendChild(document.createTextNode(
+      state === STATE.LIVE ? " LIVE"
+      : state === STATE.LOADING ? " ACQUIRING"
+      : state === STATE.STALE ? " STALE"
+      : " ERROR"
+    ));
+  }
+
+  // Update error message text
+  if (message) {
+    const msg = document.getElementById("error-message");
+    if (msg) msg.textContent = message;
+  }
+}
 /* ---------- Orbital physics ---------- */
 const PHYSICS = {
   GM_EARTH: 3.986e14,     // m³/s²
@@ -259,11 +314,35 @@ let updateCount = 0;
 let lastData = null;
 
 async function tick() {
+  // Offline: count as a failure so we escalate to ERROR after the threshold
+  if (!navigator.onLine) {
+    consecutiveFailures++;
+    if (consecutiveFailures >= FAILURE_THRESHOLD) {
+      setPanelState(STATE.ERROR, "You're offline. Will retry when network returns.");
+    } else {
+      setPanelState(STATE.STALE, "You're offline. Waiting for network…");
+    }
+    return;
+  }
+
   updateCount++;
   const data = await fetchISS();
-  if (!data) return;
 
+  if (!data) {
+    consecutiveFailures++;
+    if (consecutiveFailures >= FAILURE_THRESHOLD) {
+      setPanelState(STATE.ERROR, `Unable to reach ISS telemetry (${consecutiveFailures} tries).`);
+    } else {
+      setPanelState(STATE.STALE, "Temporary fetch failure. Retrying…");
+    }
+    return;
+  }
+
+  // Success — reset everything
+  consecutiveFailures = 0;
+  setPanelState(STATE.LIVE);
   lastData = data;
+
   console.log(`Tick #${updateCount} — ${data.lat.toFixed(4)}, ${data.lon.toFixed(4)} (${data.source})`);
 
   if (window.issDot) {
@@ -279,18 +358,59 @@ async function tick() {
 
   updateISSPosition(data.lon);
 
-  // Compute physics from current altitude
   const orbit = computeOrbit(data.altitude);
-  console.log(
-    `Physics — v: ${orbit.velocityKmS.toFixed(3)} km/s, ` +
-    `T: ${orbit.periodMin.toFixed(2)} min, ` +
-    `r: ${orbit.radiusKm.toFixed(0)} km, ` +
-    `Δd/5s: ${orbit.distancePerTickKm.toFixed(2)} km`
-  );
-
   lastOrbit = orbit;
+
+  setStat("stat-lat", formatCoord(data.lat, "lat"));
+  setStat("stat-lon", formatCoord(data.lon, "lon"));
+  setStat("stat-speed", `${orbit.velocityKmS.toFixed(2)} km/s`);
+  setStat("stat-alt", `${data.altitude.toFixed(0)} km${data.source === "Open Notify" ? " (nominal)" : ""}`);
+  setStat("stat-period", `${orbit.periodMin.toFixed(1)} min`);
+  setStat("stat-updated", formatAgo(data.timestamp));
 }
 
 // First fetch immediately, then every 5 seconds
 tick();
 setInterval(tick, UPDATE_INTERVAL_MS);
+/* ---------- Live "updated" ticker ---------- */
+setInterval(() => {
+  if (lastData) {
+    setStat("stat-updated", formatAgo(lastData.timestamp));
+  }
+}, 1000);
+/* ---------- Offline / online handling ---------- */
+function updateOfflineNotice() {
+  const notice = document.getElementById("offline-notice");
+  if (!notice) return;
+  if (navigator.onLine) {
+    notice.classList.remove("show");
+  } else {
+    notice.classList.add("show");
+    setPanelState(STATE.STALE, "You're offline. Waiting for network…");
+  }
+}
+
+window.addEventListener("online", () => {
+  updateOfflineNotice();
+  tick(); // fetch immediately when back online
+});
+window.addEventListener("offline", updateOfflineNotice);
+updateOfflineNotice();
+
+/* ---------- Manual retry button ---------- */
+document.getElementById("retry-btn")?.addEventListener("click", () => {
+  consecutiveFailures = 0;
+  setPanelState(STATE.LOADING);
+  tick();
+});
+
+/* ---------- Refetch when tab becomes visible again ---------- */
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    console.log("Tab returned — refetching immediately");
+    tick();
+  }
+});
+
+/* ---------- Initial state ---------- */
+setPanelState(STATE.LOADING, "Acquiring signal…");

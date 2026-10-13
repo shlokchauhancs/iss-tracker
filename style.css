@@ -634,3 +634,87 @@ box-shadow:
 @media (prefers-reduced-motion: reduce) {
   .iss-map-dot { animation: none; }
 }
+/* ---------- Panel state variations ---------- */
+#panel[data-state="loading"] .status-pulse {
+  background: #7f9bb8;
+  box-shadow: 0 0 8px #7f9bb8;
+}
+
+#panel[data-state="stale"] .status-pulse {
+  background: #ffb347;
+  box-shadow: 0 0 8px #ffb347;
+}
+
+#panel[data-state="error"] .status-pulse {
+  background: #ff4d5e;
+  box-shadow: 0 0 8px #ff4d5e;
+}
+
+#panel[data-state="loading"] .panel-status,
+#panel[data-state="stale"] .panel-status {
+  color: #ffb347;
+}
+
+#panel[data-state="error"] .panel-status {
+  color: #ff4d5e;
+}
+
+/* Error banner inside the panel */
+.panel-error {
+  display: none;
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 77, 94, 0.15);
+  border: 1px solid rgba(255, 77, 94, 0.4);
+  border-radius: 6px;
+  font-size: 0.65rem;
+  line-height: 1.4;
+  color: #ffc9cf;
+}
+
+#panel[data-state="error"] .panel-error {
+  display: block;
+}
+
+.panel-error button {
+  margin-top: 6px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid #ff4d5e;
+  color: #ffc9cf;
+  font-family: inherit;
+  font-size: 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.panel-error button:hover {
+  background: rgba(255, 77, 94, 0.2);
+}
+
+/* Offline notice — floats at top of scene */
+.offline-notice {
+  position: fixed;
+  top: -60px;                /* off-screen when hidden */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: rgba(255, 179, 71, 0.95);
+  color: #1a1000;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: top 0.3s ease, opacity 0.3s ease;
+}
+
+.offline-notice.show {
+  top: 12px;
+  opacity: 1;
+  pointer-events: auto;
+}
