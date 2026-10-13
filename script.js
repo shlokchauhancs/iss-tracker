@@ -144,7 +144,7 @@ function setupPanel() {
 
   console.log("Phase 2.9 — panel toggle wired");
 }
-
+let lastOrbit = null;
 setupPanel();
 /* ---------- ISS data fetching ---------- */
 const API_SOURCES = [
@@ -193,6 +193,65 @@ async function fetchISS() {
   console.error("All ISS data sources failed");
   return null;
 }
+/* ---------- Longitude → horizontal position ---------- */
+function lonToXPercent(lon) {
+  // Map -180°..+180° → 20%..80% of the space zone width
+  // Keeps the ISS comfortably inside the viewport
+  const minX = 20;
+  const maxX = 80;
+  return minX + ((lon + 180) / 360) * (maxX - minX);
+}
+
+function updateISSPosition(lon) {
+  const iss = document.getElementById("iss");
+  if (!iss) return;
+
+  const prevLon = iss.dataset.lon ? parseFloat(iss.dataset.lon) : null;
+  const xPercent = lonToXPercent(lon);
+
+  // Detect antimeridian wrap: lon jumps from ~+180 to ~-180
+  const wrapped = prevLon !== null && Math.abs(lon - prevLon) > 180;
+
+  if (wrapped) {
+    // Snap without transition to avoid a long slide across the screen
+    iss.style.transition = "none";
+    iss.style.left = xPercent + "%";
+    void iss.offsetWidth;              // force reflow
+    iss.style.transition = "";         // restore transition
+  } else {
+    iss.style.left = xPercent + "%";
+  }
+
+  iss.dataset.lon = lon;
+}
+/* ---------- Orbital physics ---------- */
+const PHYSICS = {
+  GM_EARTH: 3.986e14,     // m³/s²
+  R_EARTH: 6_371_000,     // m
+  NOMINAL_ALTITUDE: 408_000, // m
+};
+
+function computeOrbit(altitudeKm) {
+  const altitudeM = (altitudeKm || 408) * 1000;
+  const r = PHYSICS.R_EARTH + altitudeM;
+
+  // Orbital velocity (m/s → km/s)
+  const v = Math.sqrt(PHYSICS.GM_EARTH / r) / 1000;
+
+  // Orbital period (seconds → minutes)
+  const T = 2 * Math.PI * Math.sqrt(Math.pow(r, 3) / PHYSICS.GM_EARTH) / 60;
+
+  // Distance covered per 5-second tick
+  const distancePerTick = v * 5;
+
+  return {
+    velocityKmS: v,
+    periodMin: T,
+    distancePerTickKm: distancePerTick,
+    altitudeKm: altitudeKm || 408,
+    radiusKm: r / 1000,
+  };
+}
 
 /* ---------- Update loop ---------- */
 const UPDATE_INTERVAL_MS = 5000;
@@ -207,18 +266,29 @@ async function tick() {
   lastData = data;
   console.log(`Tick #${updateCount} — ${data.lat.toFixed(4)}, ${data.lon.toFixed(4)} (${data.source})`);
 
-  // Move the map marker to the live position
   if (window.issDot) {
     window.issDot.setLatLng([data.lat, data.lon]);
   }
 
-  // Recenter the map on the ISS so it stays visible
   if (window.issMap) {
     window.issMap.setView([data.lat, data.lon], window.issMap.getZoom(), {
       animate: true,
-      duration: 4.5,   // smooth pan over ~4.5 seconds, matching the 5s loop
+      duration: 4.5,
     });
   }
+
+  updateISSPosition(data.lon);
+
+  // Compute physics from current altitude
+  const orbit = computeOrbit(data.altitude);
+  console.log(
+    `Physics — v: ${orbit.velocityKmS.toFixed(3)} km/s, ` +
+    `T: ${orbit.periodMin.toFixed(2)} min, ` +
+    `r: ${orbit.radiusKm.toFixed(0)} km, ` +
+    `Δd/5s: ${orbit.distancePerTickKm.toFixed(2)} km`
+  );
+
+  lastOrbit = orbit;
 }
 
 // First fetch immediately, then every 5 seconds

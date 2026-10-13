@@ -516,7 +516,8 @@ box-shadow:
   cursor: pointer;
   transform: translate(-50%, -50%);
   animation: issFloat 7s ease-in-out infinite;
-  will-change: transform;
+  will-change: transform, left;
+  transition: left 4.5s ease-in-out;  /*Smooth Horizontal Slide*/
 }
 
 #iss svg {
