@@ -168,32 +168,41 @@ function formatAgo(timestamp) {
   return `${Math.floor(seconds / 60)}m ago`;
 }
 /* ---------- ISS data fetching ---------- */
-const API_SOURCES = [
-  {
-    name: "Open Notify",
-    url: "http://api.open-notify.org/iss-now.json",
-    parse: (data) => ({
-      lat: parseFloat(data.iss_position.latitude),
-      lon: parseFloat(data.iss_position.longitude),
-      timestamp: data.timestamp * 1000,
-      altitude: 408,       // nominal km — Open Notify doesn't return altitude
-      velocity: 7.66,      // nominal km/s
-      source: "Open Notify",
-    }),
-  },
-  {
-    name: "WhereTheISS.at",
-    url: "https://api.wheretheiss.at/v1/satellites/25544",
-    parse: (data) => ({
-      lat: data.latitude,
-      lon: data.longitude,
-      timestamp: data.timestamp * 1000,
-      altitude: data.altitude,
-      velocity: data.velocity / 3600, // km/h → km/s
-      source: "WhereTheISS.at",
-    }),
-  },
-];
+// On HTTPS, HTTP-only APIs are blocked by the browser, so we prefer HTTPS-safe
+// sources in that environment. On HTTP (local dev), Open Notify works.
+const isHTTPS = location.protocol === "https:";
+
+const OPEN_NOTIFY = {
+  name: "Open Notify",
+  url: "http://api.open-notify.org/iss-now.json",
+  parse: (data) => ({
+    lat: parseFloat(data.iss_position.latitude),
+    lon: parseFloat(data.iss_position.longitude),
+    timestamp: data.timestamp * 1000,
+    altitude: 408,
+    velocity: 7.66,
+    source: "Open Notify",
+  }),
+};
+
+const WHERE_THE_ISS = {
+  name: "WhereTheISS.at",
+  url: "https://api.wheretheiss.at/v1/satellites/25544",
+  parse: (data) => ({
+    lat: data.latitude,
+    lon: data.longitude,
+    timestamp: data.timestamp * 1000,
+    altitude: data.altitude,
+    velocity: data.velocity / 3600,
+    source: "WhereTheISS.at",
+  }),
+};
+
+// HTTPS site → WhereTheISS.at first (Open Notify would be blocked).
+// Local HTTP dev → Open Notify first (matches SOP narrative, free of latency).
+const API_SOURCES = isHTTPS
+  ? [WHERE_THE_ISS, OPEN_NOTIFY]
+  : [OPEN_NOTIFY, WHERE_THE_ISS];
 
 async function fetchISS() {
   for (const source of API_SOURCES) {
