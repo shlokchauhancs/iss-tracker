@@ -1,10 +1,11 @@
 # ISS Tracker
 
 A cinematic live tracker for the International Space Station — real-time telemetry on a satellite view of Earth.
+![ISS Tracker live view](assets/Screenshot.png)
 
 **Status:** Phase 4 complete — full polish pass done. Ready for cross-device testing and public deployment.
 
-**Live demo:** (coming soon)
+**Live demo:** https://shlokchauhancs.github.io/iss-tracker/
 
 **Tech stack:**
 - HTML, CSS, JavaScript (vanilla)
