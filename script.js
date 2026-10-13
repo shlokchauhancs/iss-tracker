@@ -149,7 +149,9 @@ setupPanel();
 /* ---------- Panel population ---------- */
 function setStat(id, value) {
   const el = document.getElementById(id);
-  if (el) el.textContent = value;
+  if (!el) return;
+  el.textContent = value;
+  el.classList.remove("skeleton");
 }
 
 function formatCoord(value, axis) {
@@ -414,3 +416,16 @@ document.addEventListener("visibilitychange", () => {
 
 /* ---------- Initial state ---------- */
 setPanelState(STATE.LOADING, "Acquiring signal…");
+/* ---------- Scene fade-in ---------- */
+// Script is at the end of <body>, so DOM is already parsed.
+// Use requestAnimationFrame so the first paint happens while hidden,
+// then reveal on the next frame.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    document.getElementById("scene")?.classList.add("ready");
+  });
+});
+/* ---------- Safety: force scene visible if something hangs ---------- */
+setTimeout(() => {
+  document.getElementById("scene")?.classList.add("ready");
+}, 1500);
